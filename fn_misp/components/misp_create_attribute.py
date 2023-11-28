@@ -40,10 +40,11 @@ class FunctionComponent(ResilientComponent):
             misp_event_id = kwargs.get("misp_event_id")  # number
             misp_attribute_value = kwargs.get("misp_attribute_value")  # text
             misp_attribute_type = kwargs.get("misp_attribute_type")  # text
+            misp_override_warninglist = kwargs.get("misp_override_warninglist", False)  # bool
 
             # ensure misp_event_id is an integer so we can get an event by it's index
             if not isinstance(misp_event_id, int):
-                raise IntegrationError(u"Unexpected input type for MISP Event ID. Expected and integer, received {}".format(type(misp_event_id)))
+                raise IntegrationError(f"Unexpected input type for MISP Event ID. Expected and integer, received {type(misp_event_id)}")
 
             log = logging.getLogger(__name__)
             log.info("misp_event_id: %s", misp_event_id)
@@ -56,19 +57,34 @@ class FunctionComponent(ResilientComponent):
 
             misp_client = misp_helper.get_misp_client(URL, API_KEY, VERIFY_CERT, proxies=proxies)
 
-            yield StatusMessage(u"Creating new misp attribute {} {}".format(misp_attribute_type, misp_attribute_value))
+            # Check misp_attribute_value against MISP Warninglists
+            # if misp_override_warninglist is NOT set
+            if not misp_override_warninglist:
+                warning_list_entries = misp_client.values_in_warninglist(misp_attribute_value)
+            else:
+                warning_list_entries = []
 
-            attribute = misp_helper.create_misp_attribute(misp_client, misp_event_id, misp_attribute_type, misp_attribute_value)
+            if len(warning_list_entries) > 0:
+                message = f"'{misp_attribute_value}' is member of at least one MISP Warninglist. Skipping..."
+                yield StatusMessage(message)
+                # Produce a FunctionResult with the results
+                yield FunctionResult({}, success=False, reason=str(message))
 
-            log.debug(attribute)
+            else:
+                yield StatusMessage(f"Creating new misp attribute {misp_attribute_type} {misp_attribute_value}")
 
-            yield StatusMessage("Attribute has been created")
+                attribute = misp_helper.create_misp_attribute(misp_client, misp_event_id, misp_attribute_type, misp_attribute_value)
 
-            results = { "success": True,
-                        "content": attribute
-                      }
+                log.debug(attribute)
 
-            # Produce a FunctionResult with the results
-            yield FunctionResult(results)
+                yield StatusMessage("Attribute has been created")
+
+                results = { "success": True,
+                            "content": attribute
+                        }
+
+                # Produce a FunctionResult with the results
+                yield FunctionResult(results)
+
         except Exception:
             yield FunctionError()
