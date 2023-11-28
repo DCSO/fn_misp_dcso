@@ -25,7 +25,7 @@ class FunctionComponent(ResilientComponent):
         self.opts = opts
         self.options = opts.get(PACKAGE, {})
         self.misp_mapping_config = f"{os.path.dirname(os.getenv('APP_CONFIG_FILE'))}/misp_mapping.cfg"
-        with open('self.misp_mapping_config') as f:
+        with open(self.misp_mapping_config) as f:
             self.misp_type_mapping = json.load(f)
 
     @handler("reload")
@@ -85,6 +85,7 @@ class FunctionComponent(ResilientComponent):
                 else:
                     # Check misp_attribute_value against MISP Warninglists
                     # if misp_override_warninglist is NOT set
+
                     if misp_helper.check_misp_warninglist(misp_client, misp_attribute_value, misp_override_warninglist):
                         message = f"'{misp_attribute_value}' is member of at least one MISP Warninglist. Skipping..."
                         yield StatusMessage(message)

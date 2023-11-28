@@ -25,7 +25,7 @@ class FunctionComponent(ResilientComponent):
         self.opts = opts
         self.options = opts.get(PACKAGE, {})
         self.misp_mapping_config = f"{os.path.dirname(os.getenv('APP_CONFIG_FILE'))}/misp_mapping.cfg"
-        with open('self.misp_mapping_config') as f:
+        with open(self.misp_mapping_config) as f:
             self.misp_type_mapping = json.load(f)
 
 
