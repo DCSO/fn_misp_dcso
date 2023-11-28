@@ -98,7 +98,7 @@ class FunctionComponent(ResilientComponent):
                         message = f"'{misp_attribute_value}' is member of at least one MISP Warninglist. Skipping..."
                         yield StatusMessage(message)
                         # Produce a FunctionResult with the results
-                        yield FunctionResult({}, success=False, reason=str(message))
+                        yield FunctionResult({"success": False, "reason": str(message)})
 
                     else:
                         yield StatusMessage(f"Creating new misp attribute {misp_attribute_type} {misp_attribute_value}")
@@ -112,7 +112,7 @@ class FunctionComponent(ResilientComponent):
             yield StatusMessage(f"Created {loop_cnt}/{artifact_cnt} attributes.")
 
             results = { "success": True,
-                        "content": "What is content?"
+                        "content": "Created {loop_cnt}/{artifact_cnt} attributes."
                       }
 
             # Produce a FunctionResult with the results
