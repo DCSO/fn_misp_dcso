@@ -20,10 +20,10 @@ def create_misp_event(misp_client, misp_distribution, misp_threat_level, misp_an
     event_response = misp_client.add_event(misp_event)
     return event_response
 
-def create_misp_attribute(misp_client, misp_event_id, misp_attribute_type, misp_attribute_value):
+def create_misp_attribute(misp_client, misp_event_uuid, misp_attribute_type, misp_attribute_value):
     misp_event = MISPEvent()
-    misp_event.id = int(misp_event_id)
-    misp_event.uuid = get_event_uuid(misp_client, misp_event_id)
+    misp_event.id = get_event_id(misp_client, misp_event_uuid)
+    misp_event.uuid = misp_event_uuid
     misp_attribute = MISPAttribute()
     misp_attribute.type = misp_attribute_type
     misp_attribute.value = misp_attribute_value
@@ -93,11 +93,18 @@ def get_misp_attribute_tags(misp_client, search_results):
     search_tags = list(set(search_tags))
     return search_tags
 
-def get_misp_sighting_list(misp_client, misp_event_id):
+def get_misp_sighting_list(misp_client, misp_event_uuid):
     misp_event = MISPEvent()
-    misp_event.id = int(misp_event_id)
+    misp_event.uuid = misp_event_uuid
     sighting_result = misp_client.sightings(misp_event)
     return sighting_result
+
+def get_event_id(misp_client, misp_event_uuid):
+    # returns list with a single element: an event dict
+    result = misp_client.search(eventid=misp_event_uuid)
+    for event in result:
+        event_uuid = event['Event']['id']
+    return event_uuid
 
 def get_event_uuid(misp_client, misp_event_id):
     # returns list with a single element: an event dict
@@ -106,14 +113,14 @@ def get_event_uuid(misp_client, misp_event_id):
         event_uuid = event['Event']['uuid']
     return event_uuid
   
-def get_attribute_uuid(misp_client, misp_attribute_value, misp_event_id):
+def get_attribute_uuid(misp_client, misp_attribute_value, misp_event_uuid):
     misp_event = MISPEvent()
-    misp_event.id = int(misp_event_id)
+    misp_event.id = misp_event_uuid
     event_response = misp_client.get_event(misp_event)
     attribute_uuid = None
     if not event_response['Event']['Attribute']:
-        log.error("Could not get a uuid for event = {} and attribute = {}. Does it exist?".format(misp_event_id, misp_attribute_value))
-        raise IntegrationError("Failed to find any attributes on event {}".format(misp_event_id))
+        log.error("Could not get a uuid for event = {} and attribute = {}. Does it exist?".format(misp_event_uuid, misp_attribute_value))
+        raise IntegrationError("Failed to find any attributes on event {}".format(misp_event_uuid))
 
     else:
         for attribute in event_response['Event']['Attribute']:
@@ -122,12 +129,12 @@ def get_attribute_uuid(misp_client, misp_attribute_value, misp_event_id):
         if attribute_uuid:
             return attribute_uuid
         else:
-            raise IntegrationError("Failed to match attribute value = {} for any attributes associated with event = {}".format(misp_attribute_value, misp_event_id))
+            raise IntegrationError("Failed to match attribute value = {} for any attributes associated with event = {}".format(misp_attribute_value, misp_event_uuid))
 
-def create_tag(misp_client, misp_attribute_value, misp_tag_type, misp_tag_name, misp_event_id):
+def create_tag(misp_client, misp_attribute_value, misp_tag_type, misp_tag_name, misp_event_uuid):
     if misp_tag_type == "Event":
-        object_uuid = get_event_uuid(misp_client, misp_event_id)
+        object_uuid = misp_event_uuid
     elif misp_tag_type == "Attribute":
-        object_uuid = get_attribute_uuid(misp_client, misp_attribute_value, misp_event_id)
+        object_uuid = get_attribute_uuid(misp_client, misp_attribute_value, misp_event_uuid)
     tag_result = misp_client.tag(object_uuid, misp_tag_name)
     return tag_result

@@ -43,17 +43,17 @@ class FunctionComponent(ResilientComponent):
             API_KEY, URL, VERIFY_CERT = common.validate(self.options)
 
             # Get the function parameters:
-            misp_event_id = kwargs.get("misp_event_id")  # string (uuid4)
+            misp_event_uuid = kwargs.get("misp_event_uuid")  # string (uuid4)
             misp_attribute_value = kwargs.get("misp_attribute_value")  # text
             resilient_attribute_type = kwargs.get("resilient_attribute_type")  # text
             misp_override_warninglist = kwargs.get("misp_override_warninglist", False)  # bool
 
-            # ensure misp_event_id is an integer so we can get an event by it's index
-            if not isinstance(misp_event_id, str):
-                raise IntegrationError(f"Unexpected input type for MISP Event ID. Expected and integer, received {type(misp_event_id)}")
+            # ensure misp_event_uuid is an integer so we can get an event by it's index
+            if not isinstance(misp_event_uuid, str):
+                raise IntegrationError(f"Unexpected input type for MISP Event ID. Expected and integer, received {type(misp_event_uuid)}")
 
             log = logging.getLogger(__name__)
-            log.info("misp_event_id: %s", misp_event_id)
+            log.info("misp_event_uuid: %s", misp_event_uuid)
             log.info("misp_attribute_value: %s", misp_attribute_value)
             log.info("misp_attribute_type: %s", resilient_attribute_type)
 
@@ -74,7 +74,7 @@ class FunctionComponent(ResilientComponent):
             else:
                 yield StatusMessage(f"Creating new misp attribute {resilient_attribute_type} {misp_attribute_value}")
 
-                attribute = misp_helper.create_misp_attribute(misp_client, misp_event_id, resilient_attribute_type, misp_attribute_value)
+                attribute = misp_helper.create_misp_attribute(misp_client, misp_event_uuid, resilient_attribute_type, misp_attribute_value)
 
                 log.debug(attribute)
 

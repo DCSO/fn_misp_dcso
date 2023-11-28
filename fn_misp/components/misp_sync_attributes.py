@@ -42,20 +42,20 @@ class FunctionComponent(ResilientComponent):
             API_KEY, URL, VERIFY_CERT = common.validate(self.options)
 
             # Get the function parameters:
-            misp_event_id = kwargs.get("misp_event_id")  # number
+            misp_event_uuid = kwargs.get("misp_event_uuid")  # number
             incident_id = kwargs.get("incident_id")  # number
             misp_override_warninglist = kwargs.get("misp_override_warninglist", False)  # bool
 
-            # ensure misp_event_id is an integer so we can get an event by it's index
-            if not isinstance(misp_event_id, str):
-                raise IntegrationError(f"Unexpected input type for MISP Event ID. Expected and integer, received {type(misp_event_id)}")
+            # ensure misp_event_uuid is an integer so we can get an event by it's index
+            if not isinstance(misp_event_uuid, str):
+                raise IntegrationError(f"Unexpected input type for MISP Event ID. Expected and integer, received {type(misp_event_uuid)}")
 
             # ensure incident_id is an integer so we can get an incident by it's index
             if not isinstance(incident_id, int):
                 raise IntegrationError(f"Unexpected input type for Incident ID. Expected and integer, received {type(incident_id)}")
 
             log = logging.getLogger(__name__)
-            log.info("misp_event_id: %s", misp_event_id)
+            log.info("misp_event_uuid: %s", misp_event_uuid)
             log.info("incident_id: %s", incident_id)
 
             # Instantiate a rest client
@@ -71,20 +71,24 @@ class FunctionComponent(ResilientComponent):
             proxies = common.get_proxies(self.opts, self.options)
 
             misp_client = misp_helper.get_misp_client(URL, API_KEY, VERIFY_CERT, proxies=proxies)
-            misp_event_id = kwargs.get("misp_event_id")  # string (uuid4)
+            misp_event_uuid = kwargs.get("misp_event_uuid")  # string (uuid4)
 
             loop_cnt = 0
             artifact_cnt = len(artifacts.get('data'))
             for artifact in artifacts.get('data'):
                 # Do something with the artifact
                 log.info(artifact)
-
+                misp_override_warninglist = False
                 # Skip if blacklisted artifact type
                 if self.misp_type_mapping.get(artifact.get('type')) is None:
                     log.info("Data Type blacklisted in mapping!")
                 else:
                     # Check misp_attribute_value against MISP Warninglists
                     # if misp_override_warninglist is NOT set
+                    artifact_tags = artifact.get('tags')
+                    for tag in artifact_tags:
+                        if tag.get('tag_handle') == "override-warninglist":
+                            misp_override_warninglist = True
 
                     if misp_helper.check_misp_warninglist(misp_client, misp_attribute_value, misp_override_warninglist):
                         message = f"'{misp_attribute_value}' is member of at least one MISP Warninglist. Skipping..."
@@ -98,7 +102,7 @@ class FunctionComponent(ResilientComponent):
                         misp_attribute_value = artifact.get('value')
                         misp_attribute_type = self.misp_type_mapping.get(artifact.get('type'))
 
-                        attribute = misp_helper.create_misp_attribute(misp_client, misp_event_id, misp_attribute_type, misp_attribute_value)
+                        attribute = misp_helper.create_misp_attribute(misp_client, misp_event_uuid, misp_attribute_type, misp_attribute_value)
 
                         log.debug(attribute)
                         loop_cnt += 1
