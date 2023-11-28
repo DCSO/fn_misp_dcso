@@ -86,7 +86,7 @@ class FunctionComponent(ResilientComponent):
                 else:
                     # Check misp_attribute_value against MISP Warninglists
                     # if misp_override_warninglist is NOT set
-                    artifact_tags = artifact.get('tags')
+                    artifact_tags = artifact['global_info'].get('tags')
                     for tag in artifact_tags:
                         if tag.get('tag_handle') == "override-warninglist":
                             misp_override_warninglist = True
