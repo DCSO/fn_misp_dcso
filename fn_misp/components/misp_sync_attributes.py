@@ -87,6 +87,8 @@ class FunctionComponent(ResilientComponent):
                     # Check misp_attribute_value against MISP Warninglists
                     # if misp_override_warninglist is NOT set
                     misp_attribute_value = artifact.get('value')
+                    misp_attribute_type = self.misp_type_mapping.get(artifact.get('type'))
+
                     artifact_tags = artifact['global_info'].get('tags')
                     for tag in artifact_tags:
                         if tag.get('tag_handle') == "override-warninglist":
@@ -100,8 +102,6 @@ class FunctionComponent(ResilientComponent):
 
                     else:
                         yield StatusMessage(f"Creating new misp attribute {misp_attribute_type} {misp_attribute_value}")
-
-                        misp_attribute_type = self.misp_type_mapping.get(artifact.get('type'))
 
                         attribute = misp_helper.create_misp_attribute(misp_client, misp_event_uuid, misp_attribute_type, misp_attribute_value)
 
