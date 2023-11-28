@@ -74,7 +74,8 @@ class FunctionComponent(ResilientComponent):
             else:
                 yield StatusMessage(f"Creating new misp attribute {resilient_attribute_type} {misp_attribute_value}")
 
-                attribute = misp_helper.create_misp_attribute(misp_client, misp_event_uuid, resilient_attribute_type, misp_attribute_value)
+                misp_attribute_type = self.misp_type_mapping.get(resilient_attribute_type)
+                attribute = misp_helper.create_misp_attribute(misp_client, misp_event_uuid, misp_attribute_type, misp_attribute_value)
 
                 log.debug(attribute)
 
