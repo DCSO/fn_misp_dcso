@@ -4,6 +4,8 @@
 
 import logging
 import sys
+import os
+import json
 if sys.version_info.major < 3:
     from fn_misp.lib import misp_2_helper as misp_helper
 else:
@@ -22,6 +24,8 @@ class FunctionComponent(ResilientComponent):
         super(FunctionComponent, self).__init__(opts)
         self.opts = opts
         self.options = opts.get(PACKAGE, {})
+        self.misp_mapping_config = f"{os.path.dirname(os.getenv('APP_CONFIG_FILE'))}/misp_mapping.cfg"
+        self.misp_type_mapping = json.load(self.misp_mapping_config)
 
     @handler("reload")
     def _reload(self, event, opts):
@@ -37,13 +41,13 @@ class FunctionComponent(ResilientComponent):
             API_KEY, URL, VERIFY_CERT = common.validate(self.options)
 
             # Get the function parameters:
-            misp_event_id = kwargs.get("misp_event_id")  # number
+            misp_event_id = kwargs.get("misp_event_id")  # string (uuid4)
             misp_attribute_value = kwargs.get("misp_attribute_value")  # text
             misp_attribute_type = kwargs.get("misp_attribute_type")  # text
             misp_override_warninglist = kwargs.get("misp_override_warninglist", False)  # bool
 
             # ensure misp_event_id is an integer so we can get an event by it's index
-            if not isinstance(misp_event_id, int):
+            if not isinstance(misp_event_id, str):
                 raise IntegrationError(f"Unexpected input type for MISP Event ID. Expected and integer, received {type(misp_event_id)}")
 
             log = logging.getLogger(__name__)
@@ -59,12 +63,7 @@ class FunctionComponent(ResilientComponent):
 
             # Check misp_attribute_value against MISP Warninglists
             # if misp_override_warninglist is NOT set
-            if not misp_override_warninglist:
-                warning_list_entries = misp_client.values_in_warninglist(misp_attribute_value)
-            else:
-                warning_list_entries = []
-
-            if len(warning_list_entries) > 0:
+            if misp_helper.check_misp_warninglist(misp_client, misp_attribute_value, misp_override_warninglist):
                 message = f"'{misp_attribute_value}' is member of at least one MISP Warninglist. Skipping..."
                 yield StatusMessage(message)
                 # Produce a FunctionResult with the results

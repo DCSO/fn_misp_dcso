@@ -55,6 +55,15 @@ def search_misp_attribute(misp_client, search_attribute):
                             }
     return search_results_response
 
+def check_misp_warninglist(misp_client, search_attribute, misp_override_warninglist) -> bool:
+    if misp_override_warninglist:
+        return False
+    warning_list_entries = misp_client.values_in_warninglist(search_attribute)
+    if len(warning_list_entries) > 0:
+        return True
+    else:
+        return False
+
 def get_event_tags(event):
     search_tags = []
     if "Tag" in event["Event"]:
