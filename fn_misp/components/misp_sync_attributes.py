@@ -25,7 +25,8 @@ class FunctionComponent(ResilientComponent):
         self.opts = opts
         self.options = opts.get(PACKAGE, {})
         self.misp_mapping_config = f"{os.path.dirname(os.getenv('APP_CONFIG_FILE'))}/misp_mapping.cfg"
-        self.misp_type_mapping = json.load(self.misp_mapping_config)
+        with open('self.misp_mapping_config') as f:
+            self.misp_type_mapping = json.load(f)
 
     @handler("reload")
     def _reload(self, event, opts):
