@@ -25,7 +25,9 @@ class FunctionComponent(ResilientComponent):
         self.opts = opts
         self.options = opts.get(PACKAGE, {})
         self.misp_mapping_config = f"{os.path.dirname(os.getenv('APP_CONFIG_FILE'))}/misp_mapping.cfg"
-        self.misp_type_mapping = json.load(self.misp_mapping_config)
+        with open('self.misp_mapping_config') as f:
+            self.misp_type_mapping = json.load(f)
+
 
     @handler("reload")
     def _reload(self, event, opts):
@@ -43,7 +45,7 @@ class FunctionComponent(ResilientComponent):
             # Get the function parameters:
             misp_event_id = kwargs.get("misp_event_id")  # string (uuid4)
             misp_attribute_value = kwargs.get("misp_attribute_value")  # text
-            misp_attribute_type = kwargs.get("misp_attribute_type")  # text
+            resilient_attribute_type = kwargs.get("resilient_attribute_type")  # text
             misp_override_warninglist = kwargs.get("misp_override_warninglist", False)  # bool
 
             # ensure misp_event_id is an integer so we can get an event by it's index
@@ -53,7 +55,7 @@ class FunctionComponent(ResilientComponent):
             log = logging.getLogger(__name__)
             log.info("misp_event_id: %s", misp_event_id)
             log.info("misp_attribute_value: %s", misp_attribute_value)
-            log.info("misp_attribute_type: %s", misp_attribute_type)
+            log.info("misp_attribute_type: %s", resilient_attribute_type)
 
             yield StatusMessage("Setting up connection to MISP")
 
@@ -70,9 +72,9 @@ class FunctionComponent(ResilientComponent):
                 yield FunctionResult({}, success=False, reason=str(message))
 
             else:
-                yield StatusMessage(f"Creating new misp attribute {misp_attribute_type} {misp_attribute_value}")
+                yield StatusMessage(f"Creating new misp attribute {resilient_attribute_type} {misp_attribute_value}")
 
-                attribute = misp_helper.create_misp_attribute(misp_client, misp_event_id, misp_attribute_type, misp_attribute_value)
+                attribute = misp_helper.create_misp_attribute(misp_client, misp_event_id, resilient_attribute_type, misp_attribute_value)
 
                 log.debug(attribute)
 
