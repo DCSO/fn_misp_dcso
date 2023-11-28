@@ -63,7 +63,7 @@ class FunctionComponent(ResilientComponent):
 
             # Get artifacts for this incident
             log.info("Start: Gathering artifacts from API")
-            artifacts = res_client.get("/incidents/{}/artifacts/query_paged?handle_format=names".format(incident_id))
+            artifacts = res_client.post("/incidents/{}/artifacts/query_paged?handle_format=names".format(incident_id))
             log.info("Stopped: Gathering artifacts from API")
             yield StatusMessage(f"Caught {len(artifacts)} from Incident {incident_id}")
 
