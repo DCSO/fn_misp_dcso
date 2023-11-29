@@ -138,3 +138,8 @@ def create_tag(misp_client, misp_attribute_value, misp_tag_type, misp_tag_name, 
         object_uuid = get_attribute_uuid(misp_client, misp_attribute_value, misp_event_uuid)
     tag_result = misp_client.tag(object_uuid, misp_tag_name)
     return tag_result
+
+def publish_event(misp_client, misp_event_uuid):
+    # returns list with a single element: an event dict
+    result = misp_client.publish(event=misp_event_uuid)
+    return result.get('message')
