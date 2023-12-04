@@ -69,7 +69,7 @@ def get_event_tags(event):
     if "Tag" in event["Event"]:
         tags = event["Event"]["Tag"]
         for tag in tags:
-            log.info("found tag {}".format(tag["name"]))
+            log.info("found tag %s", tag["name"])
             search_tags.append(tag["name"])
     return search_tags
 
@@ -77,7 +77,7 @@ def get_attribute_tags(attribute):
     search_tags = []
     if "Tag" in attribute:
         for tag in attribute["Tag"]:
-            log.info("found tag {}".format(tag["name"]))
+            log.info("found tag %s", tag["name"])
             search_tags.append(tag["name"])
     return search_tags
 
@@ -119,7 +119,7 @@ def get_attribute_uuid(misp_client, misp_attribute_value, misp_event_uuid):
     event_response = misp_client.get_event(misp_event)
     attribute_uuid = None
     if not event_response['Event']['Attribute']:
-        log.error("Could not get a uuid for event = {} and attribute = {}. Does it exist?".format(misp_event_uuid, misp_attribute_value))
+        log.error("Could not get a uuid for event = %s and attribute = %s. Does it exist?", misp_event_uuid, misp_attribute_value)
         raise IntegrationError("Failed to find any attributes on event {}".format(misp_event_uuid))
 
     else:
