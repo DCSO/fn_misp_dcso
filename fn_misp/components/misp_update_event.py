@@ -29,20 +29,22 @@ class FunctionComponent(ResilientComponent):
         self.opts = opts
         self.options = opts.get(PACKAGE, {})
 
-    @function("misp_create_event")
-    def _misp_create_event_function(self, event, *args, **kwargs):
+    @function("misp_update_event")
+    def _misp_update_event_function(self, event, *args, **kwargs):
         """Function: create a MISP event from an incident """
         try:
 
             API_KEY, URL, VERIFY_CERT = common.validate(self.options)
 
             # Get the function parameters:
+            misp_event_uuid = kwargs.get("misp_event_uuid")  # text
             misp_event_name = kwargs.get("misp_event_name")  # text
             misp_distribution_level = kwargs.get("misp_distribution_level")  # number
             misp_analysis_level = kwargs.get("misp_analysis_level")  # number
             misp_threat_level = kwargs.get("misp_threat_level")  # number
 
             log = logging.getLogger(__name__)
+            log.info("misp_event_uuid: %s", misp_event_uuid)
             log.info("misp_event_name: %s", misp_event_name)
             log.info("misp_distribution: %s", misp_distribution_level)
             log.info("misp_analysis_level: %s", misp_analysis_level)
@@ -54,13 +56,13 @@ class FunctionComponent(ResilientComponent):
 
             misp_client = misp_helper.get_misp_client(URL, API_KEY, VERIFY_CERT, proxies=proxies)
 
-            yield StatusMessage(f"Creating event {misp_event_name}")
+            yield StatusMessage(f"Updating event {misp_event_name} ({misp_event_uuid})")
 
-            event = misp_helper.create_misp_event(misp_client, misp_distribution_level, misp_threat_level, misp_analysis_level, misp_event_name)
+            event = misp_helper.update_misp_event(misp_client, misp_event_uuid, misp_distribution_level, misp_threat_level, misp_analysis_level, misp_event_name)
 
             log.debug(event)
 
-            yield StatusMessage("Event has been created")
+            yield StatusMessage("Event has been updated.")
 
             results = {
                 "success": True,
