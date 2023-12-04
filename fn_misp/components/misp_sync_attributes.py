@@ -112,7 +112,7 @@ class FunctionComponent(ResilientComponent):
             yield StatusMessage(f"Created {loop_cnt}/{artifact_cnt} attributes.")
 
             results = { "success": True,
-                        "content": "Created {loop_cnt}/{artifact_cnt} attributes."
+                        "content": f"Created {loop_cnt}/{artifact_cnt} attributes."
                       }
 
             # Produce a FunctionResult with the results
