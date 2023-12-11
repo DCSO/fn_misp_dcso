@@ -65,7 +65,7 @@ class FunctionComponent(ResilientComponent):
             results = {
                 "success": True,
                 "content": event,
-                "event_url": f"{URL}/events/view/{event.uuid}"
+                "event_url": f"{URL}/events/view/{event.get('uuid')}"
             }
 
             # Produce a FunctionResult with the results
