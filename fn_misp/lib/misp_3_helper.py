@@ -17,7 +17,7 @@ def create_misp_event(misp_client, misp_distribution, misp_threat_level, misp_an
     misp_event.threat_level_id = misp_threat_level
     misp_event.analysis = misp_analysis_level
     misp_event.info = misp_event_name
-    misp_event.Tags = misp_tags
+    misp_event.Tag = misp_tags
     event_response = misp_client.add_event(misp_event)
     return event_response
 
@@ -27,7 +27,7 @@ def update_misp_event(misp_client, misp_event_uuid, misp_distribution, misp_thre
     misp_event.threat_level_id = misp_threat_level
     misp_event.analysis = misp_analysis_level
     misp_event.info = misp_event_name
-    misp_event.Tags = misp_tags
+    misp_event.Tag = misp_tags
     event_response = misp_client.update_event(misp_event)
     return event_response
 
