@@ -31,6 +31,7 @@ def update_misp_event(misp_client, misp_event_uuid, misp_distribution, misp_thre
     misp_event.analysis = misp_analysis_level
     misp_event.info = misp_event_name
 
+    misp_event.Tag = None
     for misp_tag in misp_tags:
         misp_event.add_tag(misp_tag)
 
