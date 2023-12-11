@@ -41,12 +41,15 @@ class FunctionComponent(ResilientComponent):
             misp_distribution_level = kwargs.get("misp_distribution_level")  # number
             misp_analysis_level = kwargs.get("misp_analysis_level")  # number
             misp_threat_level = kwargs.get("misp_threat_level")  # number
+            misp_tags_string = kwargs.get("misp_tags")  # text
+            misp_tags = misp_tags_string.split(",")
 
             log = logging.getLogger(__name__)
             log.info("misp_event_name: %s", misp_event_name)
             log.info("misp_distribution: %s", misp_distribution_level)
             log.info("misp_analysis_level: %s", misp_analysis_level)
             log.info("misp_threat_level: %s", misp_threat_level)
+            log.info("misp_tags: %s", misp_tags_string)
 
             yield StatusMessage("Setting up connection to MISP")
 
@@ -56,7 +59,7 @@ class FunctionComponent(ResilientComponent):
 
             yield StatusMessage(f"Creating event {misp_event_name}")
 
-            event = misp_helper.create_misp_event(misp_client, misp_distribution_level, misp_threat_level, misp_analysis_level, misp_event_name)
+            event = misp_helper.create_misp_event(misp_client, misp_distribution_level, misp_threat_level, misp_analysis_level, misp_event_name, misp_tags)
 
             log.debug(event)
 

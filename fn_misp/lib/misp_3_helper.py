@@ -11,21 +11,23 @@ def get_misp_client(URL, API_KEY, VERIFY_CERT, proxies):
     misp_client = ExpandedPyMISP(URL, API_KEY, ssl=VERIFY_CERT, proxies=proxies)
     return misp_client
 
-def create_misp_event(misp_client, misp_distribution, misp_threat_level, misp_analysis_level, misp_event_name):
+def create_misp_event(misp_client, misp_distribution, misp_threat_level, misp_analysis_level, misp_event_name, misp_tags):
     misp_event = MISPEvent()
     misp_event.distribution = misp_distribution
     misp_event.threat_level_id = misp_threat_level
     misp_event.analysis = misp_analysis_level
     misp_event.info = misp_event_name
+    misp_event.Tags = misp_tags
     event_response = misp_client.add_event(misp_event)
     return event_response
 
-def update_misp_event(misp_client, misp_event_uuid, misp_distribution, misp_threat_level, misp_analysis_level, misp_event_name):
+def update_misp_event(misp_client, misp_event_uuid, misp_distribution, misp_threat_level, misp_analysis_level, misp_event_name, misp_tags):
     misp_event = misp_client.get_event(event=misp_event_uuid, pythonify=True)
     misp_event.distribution = misp_distribution
     misp_event.threat_level_id = misp_threat_level
     misp_event.analysis = misp_analysis_level
     misp_event.info = misp_event_name
+    misp_event.Tags = misp_tags
     event_response = misp_client.update_event(misp_event)
     return event_response
 
