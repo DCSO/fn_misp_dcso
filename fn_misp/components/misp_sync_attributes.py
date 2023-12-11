@@ -97,8 +97,6 @@ class FunctionComponent(ResilientComponent):
                     if misp_helper.check_misp_warninglist(misp_client, misp_attribute_value, misp_override_warninglist):
                         message = f"'{misp_attribute_value}' is member of at least one MISP Warninglist. Skipping..."
                         yield StatusMessage(message)
-                        # Produce a FunctionResult with the results
-                        yield FunctionResult({"success": False, "content": str(message)})
 
                     else:
                         yield StatusMessage(f"Creating new misp attribute {misp_attribute_type} {misp_attribute_value}")
