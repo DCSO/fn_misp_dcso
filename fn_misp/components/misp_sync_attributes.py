@@ -93,6 +93,9 @@ class FunctionComponent(ResilientComponent):
                     for tag in artifact_tags:
                         if tag.get('tag_handle') == "override-warninglist":
                             misp_override_warninglist = True
+                        if tag.get('tag_handle') == "dont_share":
+                            misp_helper.clean_orphaned_attribute(misp_client, misp_event_uuid, misp_attribute_value)
+                            continue
 
                     if misp_helper.check_misp_warninglist(misp_client, misp_attribute_value, misp_override_warninglist):
                         message = f"'{misp_attribute_value}' is member of at least one MISP Warninglist. Skipping..."

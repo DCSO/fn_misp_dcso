@@ -42,6 +42,15 @@ def update_misp_event(misp_client, misp_event_uuid, misp_distribution, misp_thre
     event_response = misp_client.update_event(misp_event)
     return event_response
 
+def clean_orphaned_attribute(misp_client, misp_event_uuid, artifact_name):
+    misp_event = misp_client.get_event(event=misp_event_uuid, pythonify=True)
+    for a in misp_event.Attribute:
+        if a.value==artifact_name:
+            a.delete()
+
+    event_response = misp_client.update_event(misp_event)
+    return event_response
+
 def create_misp_attribute(misp_client, misp_event_uuid, misp_attribute_type, misp_attribute_value):
     misp_event = MISPEvent()
     misp_event.id = get_event_id(misp_client, misp_event_uuid)
