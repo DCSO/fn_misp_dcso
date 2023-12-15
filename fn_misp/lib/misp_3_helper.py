@@ -33,10 +33,7 @@ def update_misp_event(misp_client, misp_event_uuid, misp_distribution, misp_thre
 
     # Remove all tags directly in MISP
     for t in misp_event.tags:
-        misp_client.untag(misp_entity=misp_event, tag=t)
-
-    # Clear tags from local copy
-    misp_event.tags = []
+        t.delete()
 
     # (re-) Add Tags
     for misp_tag in misp_tags:
